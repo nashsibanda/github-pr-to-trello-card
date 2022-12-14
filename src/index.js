@@ -11,6 +11,9 @@ const trelloCardIdPattern =
 const trelloApiKey = core.getInput("trello-api-key", { required: true });
 const trelloAuthToken = core.getInput("trello-auth-token", { required: true });
 const githubToken = core.getInput("github-token", { required: true });
+const commentString =
+  core.getInput("pr-comment-format", { required: false }) ||
+  "Related to **[CARD_LINK]** on [BOARD_LINK]";
 
 const trelloApiAuth = {
   key: trelloApiKey,
@@ -68,7 +71,7 @@ async function addCommentToPR(cardId) {
               await octokit.issues.createComment({
                 ...context.repo,
                 issue_number: pull_request.number,
-                body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
+                body: makePRCommentString(cardData, boardData),
               });
               return true;
             } catch (error) {
@@ -76,7 +79,7 @@ async function addCommentToPR(cardId) {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pull_request.number,
-                body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
+                body: makePRCommentString(cardData, boardData),
               });
               return null;
             }
@@ -97,6 +100,38 @@ async function addCommentToPR(cardId) {
       );
       return null;
     });
+}
+
+function makePRCommentString(cardData, boardData) {
+  const cardLink = `[${cardData.name}](${cardData.shortUrl})`;
+  const boardLink = `[${boardData.name}](${boardData.shortUrl})`;
+  const {
+    name: cardName,
+    url: cardFullUrl,
+    shortUrl: cardUrl,
+    id: cardId,
+    shortcode: cardShortcode,
+  } = cardData;
+  const {
+    name: boardName,
+    url: boardFullUrl,
+    shortUrl: boardUrl,
+    id: boardId,
+    shortcode: boardShortcode,
+  } = boardData;
+  return commentString
+    .replace("[CARD_LINK]", cardLink)
+    .replace("[BOARD_LINK]", boardLink)
+    .replace("[CARD_NAME]", cardName)
+    .replace("[CARD_FULL_URL]", cardFullUrl)
+    .replace("[CARD_URL]", cardUrl)
+    .replace("[CARD_ID]", cardId)
+    .replace("[CARD_SHORTCODE]", cardShortcode)
+    .replace("[BOARD_NAME]", boardName)
+    .replace("[BOARD_FULL_URL]", boardFullUrl)
+    .replace("[BOARD_URL]", boardUrl)
+    .replace("[BOARD_ID]", boardId)
+    .replace("[BOARD_SHORTCODE]", boardShortcode);
 }
 
 async function handlePullRequest(data) {

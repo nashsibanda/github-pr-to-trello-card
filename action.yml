@@ -17,6 +17,21 @@ inputs:
   trello-card-id-pattern:
     description: Custom JS-compatible regex pattern to extract Trello card shortcode. Defaults to "/tr-[shortcode]/"
     required: false
+  pr-comment-format:
+    description: |
+      Markdown-formatted string with Trello-related placeholders to comment on PRs.
+      
+      Defaults to: "Related to **[CARD_LINK]** on [BOARD_LINK]"
+
+      Placeholders are:
+
+      - [CARD_LINK] / [BOARD_LINK]: A link to the Trello card / board, with the card name as display text.
+      - [CARD_NAME] / [BOARD_NAME]: The name of the Trello card / board
+      - [CARD_FULL_URL] / [BOARD_FULL_URL]: The full URL (with slug) of the Trello card / board
+      - [CARD_URL] / [BOARD_URL]: The short URL of the Trello card / board
+      - [CARD_ID] / [BOARD_ID]: The full API ID of the Trello card / board
+      - [CARD_SHORTCODE] / [BOARD_SHORTCODE]: The shortcode of the Trello card / board (as seen in the short URL)
+    required: false
 runs:
   using: node16
   main: dist/index.js
