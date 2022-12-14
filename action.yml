@@ -13,7 +13,7 @@ inputs:
     required: true
   trello-card-id-pattern:
     description: Custom JS-compatible regex pattern to extract Trello card shortcode. Defaults to "/tr-[shortcode]/"
-    default: "/\/tr-([a-zA-Z0-9]+)\/.*/"
+    default: '/\/tr-([a-zA-Z0-9]+)\/.*/'
     required: false
 runs:
   using: node16
