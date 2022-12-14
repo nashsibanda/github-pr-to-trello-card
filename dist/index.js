@@ -13330,27 +13330,6 @@ function getCardShortcode(branch) {
   return match[1];
 }
 
-async function getCardId(cardShortcode) {
-  console.log(`getCardId(${cardShortcode})`);
-  if (card && card.length > 0) {
-    let url = `https://trello.com/c/${cardShortcode}.json`;
-    console.log("Url is ", url);
-    return await axios__WEBPACK_IMPORTED_MODULE_0__.get(url, { 
-      params: { 
-        key: trelloApiKey, 
-        token: trelloAuthToken 
-      }
-    }).then(response => {
-      return response.data.id;
-    }).catch(error => {
-      console.error(url, `Error ${error.response.status} ${error.response.statusText}`);
-      return null;
-    });
-  }
-
-  return null;
-}
-
 async function addAttachmentToCard(cardId, link) {
   console.log(`addAttachmentToCard(${cardId}, ${link})`);
   let url = `https://api.trello.com/1/cards/${cardId}/attachments`;
@@ -13371,11 +13350,9 @@ async function handlePullRequest(data) {
   let url = data.html_url || data.url;
   let branch = data.head.ref;
   let shortcode = getCardShortcode(branch);
-
-  let cardId = await getCardId(shortcode);
-    if (cardId && cardId.length > 0) {
-      await addAttachmentToCard(cardId, url);
-    }
+  if (shortcode && shortcode.length > 0) {
+    await addAttachmentToCard(shortcode, url);
+  }
 }
 
 async function run() {
