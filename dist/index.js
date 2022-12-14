@@ -13364,11 +13364,11 @@ async function addAttachmentToCard(cardId, link) {
 async function addCommentToPR(cardId) {
   console.log(`addCommentToPR(${cardId})`);
   let boardUrl = `https://api.trello.com/1/cards/${cardId}/board`;
-  await axios__WEBPACK_IMPORTED_MODULE_0__.get(boardUrl, trelloApiAuth)
+  await axios__WEBPACK_IMPORTED_MODULE_0__.get(boardUrl, { params: trelloApiAuth })
     .then(async (response) => {
       const boardData = response.data;
       let cardUrl = `https://api.trello.com/1/cards/${cardId}`;
-      await axios__WEBPACK_IMPORTED_MODULE_0__.get(cardUrl, trelloApiAuth)
+      await axios__WEBPACK_IMPORTED_MODULE_0__.get(cardUrl, { params: trelloApiAuth })
         .then(async (response) => {
           if (response.status == 200) {
             const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_2__.getOctokit(githubToken);
@@ -13387,7 +13387,7 @@ async function addCommentToPR(cardId) {
                 issue_number: pull_request.number,
                 body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
               });
-              return null
+              return null;
             }
           }
         })

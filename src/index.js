@@ -54,12 +54,12 @@ async function addCommentToPR(cardId) {
   console.log(`addCommentToPR(${cardId})`);
   let boardUrl = `https://api.trello.com/1/cards/${cardId}/board`;
   await axios
-    .get(boardUrl, trelloApiAuth)
+    .get(boardUrl, { params: trelloApiAuth })
     .then(async (response) => {
       const boardData = response.data;
       let cardUrl = `https://api.trello.com/1/cards/${cardId}`;
       await axios
-        .get(cardUrl, trelloApiAuth)
+        .get(cardUrl, { params: trelloApiAuth })
         .then(async (response) => {
           if (response.status == 200) {
             const octokit = github.getOctokit(githubToken);
@@ -78,7 +78,7 @@ async function addCommentToPR(cardId) {
                 issue_number: pull_request.number,
                 body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
               });
-              return null
+              return null;
             }
           }
         })
