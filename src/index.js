@@ -58,14 +58,12 @@ async function handlePullRequest(data) {
   console.log("handlePullRequest", data);
   let url = data.html_url || data.url;
   let branch = data.head.ref;
-  let cardsNumbers = getCardShortcode(branch);
-  cardsNumbers.forEach(async cardNumber => {
+  let shortcode = getCardShortcode(branch);
 
-  let cardId = await getCardId(cardNumber);
+  let cardId = await getCardId(shortcode);
     if (cardId && cardId.length > 0) {
       await addAttachmentToCard(cardId, url);
     }
-  });
 }
 
 async function run() {
