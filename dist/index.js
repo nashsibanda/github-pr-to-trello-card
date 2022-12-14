@@ -13350,11 +13350,6 @@ async function addAttachmentToCard(cardId, link) {
     .then(async (response) => {
       if (response.status == 200) {
         return await addCommentToPR(cardId);
-      } else {
-        console.error(
-          url,
-          `Response status: ${response.status}\n\nContents: ${response.data}`
-        );
       }
     })
     .catch((error) => {
@@ -13368,26 +13363,41 @@ async function addAttachmentToCard(cardId, link) {
 
 async function addCommentToPR(cardId) {
   console.log(`addCommentToPR(${cardId})`);
-  let url = `https://api.trello.com/1/cards/${cardId}`;
-  const { data: boardData } = await axios__WEBPACK_IMPORTED_MODULE_0__.get(url, trelloApiAuth);
-
-  return await axios__WEBPACK_IMPORTED_MODULE_0__.get(url, trelloApiAuth)
+  let boardUrl = `https://api.trello.com/1/cards/${cardId}/board`;
+  await axios__WEBPACK_IMPORTED_MODULE_0__.get(boardUrl, trelloApiAuth)
     .then(async (response) => {
-      if (response.status == 200) {
-        const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_2__.getOctokit(githubToken);
-        const cardData = response.data;
-        const addCommentResp = await octokit.issues.createComment({
-          ...context.repo,
-          issue_number: pull_request.number,
-          body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
+      const boardData = response.data;
+      let cardUrl = `https://api.trello.com/1/cards/${cardId}`;
+      await axios__WEBPACK_IMPORTED_MODULE_0__.get(cardUrl, trelloApiAuth)
+        .then(async (response) => {
+          if (response.status == 200) {
+            const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_2__.getOctokit(githubToken);
+            const cardData = response.data;
+            try {
+              await octokit.issues.createComment({
+                ...context.repo,
+                issue_number: pull_request.number,
+                body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
+              });
+              return true;
+            } catch (error) {
+              console.error("OCTOKIT ERROR", {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pull_request.number,
+                body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
+              });
+              return null
+            }
+          }
+        })
+        .catch((error) => {
+          console.error(
+            url,
+            `Error ${error.response.status} ${error.response.statusText}`
+          );
+          return null;
         });
-        return true;
-      } else {
-        console.error(
-          url,
-          `Response status: ${response.status}\n\nContents: ${response.data}`
-        );
-      }
     })
     .catch((error) => {
       console.error(

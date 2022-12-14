@@ -39,11 +39,6 @@ async function addAttachmentToCard(cardId, link) {
     .then(async (response) => {
       if (response.status == 200) {
         return await addCommentToPR(cardId);
-      } else {
-        console.error(
-          url,
-          `Response status: ${response.status}\n\nContents: ${response.data}`
-        );
       }
     })
     .catch((error) => {
@@ -57,27 +52,43 @@ async function addAttachmentToCard(cardId, link) {
 
 async function addCommentToPR(cardId) {
   console.log(`addCommentToPR(${cardId})`);
-  let url = `https://api.trello.com/1/cards/${cardId}`;
-  const { data: boardData } = await axios.get(url, trelloApiAuth);
-
-  return await axios
-    .get(url, trelloApiAuth)
+  let boardUrl = `https://api.trello.com/1/cards/${cardId}/board`;
+  await axios
+    .get(boardUrl, trelloApiAuth)
     .then(async (response) => {
-      if (response.status == 200) {
-        const octokit = github.getOctokit(githubToken);
-        const cardData = response.data;
-        const addCommentResp = await octokit.issues.createComment({
-          ...context.repo,
-          issue_number: pull_request.number,
-          body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
+      const boardData = response.data;
+      let cardUrl = `https://api.trello.com/1/cards/${cardId}`;
+      await axios
+        .get(cardUrl, trelloApiAuth)
+        .then(async (response) => {
+          if (response.status == 200) {
+            const octokit = github.getOctokit(githubToken);
+            const cardData = response.data;
+            try {
+              await octokit.issues.createComment({
+                ...context.repo,
+                issue_number: pull_request.number,
+                body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
+              });
+              return true;
+            } catch (error) {
+              console.error("OCTOKIT ERROR", {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pull_request.number,
+                body: `Related to **[${cardData.name}](${cardData.shortUrl})** on ${boardData.name}`,
+              });
+              return null
+            }
+          }
+        })
+        .catch((error) => {
+          console.error(
+            url,
+            `Error ${error.response.status} ${error.response.statusText}`
+          );
+          return null;
         });
-        return true;
-      } else {
-        console.error(
-          url,
-          `Response status: ${response.status}\n\nContents: ${response.data}`
-        );
-      }
     })
     .catch((error) => {
       console.error(
