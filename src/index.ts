@@ -1,18 +1,17 @@
-import * as axios from "axios";
-import * as core from "@actions/core";
-import * as github from "@actions/github";
+import { getInput } from "@actions/core";
+import { context, getOctokit } from "@actions/github";
+import axios from "axios";
 
-const { context = {} } = github;
 const { pull_request } = context.payload;
 
 const trelloCardIdPattern =
-  core.getInput("trello-card-id-pattern", { required: false }) ||
+  getInput("trello-card-id-pattern", { required: false }) ||
   /\/tr-([a-zA-Z0-9]+)\/.*/;
-const trelloApiKey = core.getInput("trello-api-key", { required: true });
-const trelloAuthToken = core.getInput("trello-auth-token", { required: true });
-const githubToken = core.getInput("github-token", { required: true });
+const trelloApiKey = getInput("trello-api-key", { required: true });
+const trelloAuthToken = getInput("trello-auth-token", { required: true });
+const githubToken = getInput("github-token", { required: true });
 const commentString =
-  core.getInput("pr-comment-format", { required: false }) ||
+  getInput("pr-comment-format", { required: false }) ||
   "Related to **[CARD_LINK]** on [BOARD_LINK]";
 
 const trelloApiAuth = {
@@ -20,7 +19,7 @@ const trelloApiAuth = {
   token: trelloAuthToken,
 };
 
-function getCardShortcode(branch) {
+const getCardShortcode = (branch: string): string | null => {
   console.log(`getCardShortcode(${branch})`);
   const match = branch.match(trelloCardIdPattern);
   if (match == null) {
@@ -53,17 +52,17 @@ async function addAttachmentToCard(cardId, link) {
 
 async function addCommentToPR(cardId) {
   console.log(`addCommentToPR(${cardId})`);
-  let boardUrl = `https://api.trello.com/1/cards/${cardId}/board`;
+  const boardUrl = `https://api.trello.com/1/cards/${cardId}/board`;
   await axios
     .get(boardUrl, { params: trelloApiAuth })
     .then(async (response) => {
       const boardData = response.data;
-      let cardUrl = `https://api.trello.com/1/cards/${cardId}`;
+      const cardUrl = `https://api.trello.com/1/cards/${cardId}`;
       await axios
         .get(cardUrl, { params: trelloApiAuth })
         .then(async (response) => {
           if (response.status == 200) {
-            const octokit = github.getOctokit(githubToken);
+            const octokit = getOctokit(githubToken);
             const cardData = response.data;
             try {
               await octokit.issues.createComment({
@@ -85,7 +84,7 @@ async function addCommentToPR(cardId) {
         })
         .catch((error) => {
           console.error(
-            url,
+            cardUrl,
             `Error ${error.response.status} ${error.response.statusText}`
           );
           return null;
@@ -93,7 +92,7 @@ async function addCommentToPR(cardId) {
     })
     .catch((error) => {
       console.error(
-        url,
+        boardUrl,
         `Error ${error.response.status} ${error.response.statusText}`
       );
       return null;
@@ -102,7 +101,7 @@ async function addCommentToPR(cardId) {
 
 async function addFailedCommentToPR() {
   console.log(`addFailedCommentToPR()`);
-  const octokit = github.getOctokit(githubToken);
+  const octokit = getOctokit(githubToken);
   try {
     await octokit.issues.createComment({
       ...context.repo,
@@ -153,11 +152,11 @@ function makePRCommentString(cardData, boardData) {
     .replace("[BOARD_SHORTCODE]", boardShortcode);
 }
 
-async function handlePullRequest(data) {
+async function handlePullRequest(data: typeof pull_request) {
   console.log("handlePullRequest", data);
-  let url = data.html_url || data.url;
-  let branch = data.head.ref;
-  let shortcode = getCardShortcode(branch);
+  const url: string = data.html_url || data.url;
+  const branch: string = data.head.ref;
+  const shortcode = getCardShortcode(branch);
   if (shortcode && shortcode.length > 0) {
     await addAttachmentToCard(shortcode, url);
   } else {

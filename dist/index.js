@@ -13304,182 +13304,158 @@ var __webpack_exports__ = {};
 (() => {
 "use strict";
 __nccwpck_require__.r(__webpack_exports__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(6545);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(2186);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(5438);
-/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_2__);
-
-
-
-
-const { context = {} } = _actions_github__WEBPACK_IMPORTED_MODULE_2__;
-const { pull_request } = context.payload;
-
-const trelloCardIdPattern =
-  _actions_core__WEBPACK_IMPORTED_MODULE_1__.getInput("trello-card-id-pattern", { required: false }) ||
-  /\/tr-([a-zA-Z0-9]+)\/.*/;
-const trelloApiKey = _actions_core__WEBPACK_IMPORTED_MODULE_1__.getInput("trello-api-key", { required: true });
-const trelloAuthToken = _actions_core__WEBPACK_IMPORTED_MODULE_1__.getInput("trello-auth-token", { required: true });
-const githubToken = _actions_core__WEBPACK_IMPORTED_MODULE_1__.getInput("github-token", { required: true });
-const commentString =
-  _actions_core__WEBPACK_IMPORTED_MODULE_1__.getInput("pr-comment-format", { required: false }) ||
-  "Related to **[CARD_LINK]** on [BOARD_LINK]";
-
-const trelloApiAuth = {
-  key: trelloApiKey,
-  token: trelloAuthToken,
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2186);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(5438);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(6545);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
 
-function getCardShortcode(branch) {
-  console.log(`getCardShortcode(${branch})`);
-  const match = branch.match(trelloCardIdPattern);
-  if (match == null) {
-    return null;
-  }
-  return match[1];
-}
 
-async function addAttachmentToCard(cardId, link) {
-  console.log(`addAttachmentToCard(${cardId}, ${link})`);
-  let url = `https://api.trello.com/1/cards/${cardId}/attachments`;
-  return await axios__WEBPACK_IMPORTED_MODULE_0__.post(url, {
-      ...trelloApiAuth,
-      url: link,
-    })
-    .then(async (response) => {
-      if (response.status == 200) {
-        return await addCommentToPR(cardId);
-      }
-    })
-    .catch((error) => {
-      console.error(
-        url,
-        `Error ${error.response.status} ${error.response.statusText}`
-      );
-      return null;
-    });
-}
 
-async function addCommentToPR(cardId) {
-  console.log(`addCommentToPR(${cardId})`);
-  let boardUrl = `https://api.trello.com/1/cards/${cardId}/board`;
-  await axios__WEBPACK_IMPORTED_MODULE_0__.get(boardUrl, { params: trelloApiAuth })
-    .then(async (response) => {
-      const boardData = response.data;
-      let cardUrl = `https://api.trello.com/1/cards/${cardId}`;
-      await axios__WEBPACK_IMPORTED_MODULE_0__.get(cardUrl, { params: trelloApiAuth })
-        .then(async (response) => {
-          if (response.status == 200) {
-            const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_2__.getOctokit(githubToken);
-            const cardData = response.data;
-            try {
-              await octokit.issues.createComment({
-                ...context.repo,
-                issue_number: pull_request.number,
-                body: makePRCommentString(cardData, boardData),
-              });
-              return true;
-            } catch (error) {
-              console.error("OCTOKIT ERROR", {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pull_request.number,
-                body: makePRCommentString(cardData, boardData),
-              });
-              return null;
+const { pull_request } = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.payload;
+const trelloCardIdPattern = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)("trello-card-id-pattern", { required: false }) ||
+    /\/tr-([a-zA-Z0-9]+)\/.*/;
+const trelloApiKey = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)("trello-api-key", { required: true });
+const trelloAuthToken = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)("trello-auth-token", { required: true });
+const githubToken = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)("github-token", { required: true });
+const commentString = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)("pr-comment-format", { required: false }) ||
+    "Related to **[CARD_LINK]** on [BOARD_LINK]";
+const trelloApiAuth = {
+    key: trelloApiKey,
+    token: trelloAuthToken,
+};
+const getCardShortcode = (branch) => {
+    console.log(`getCardShortcode(${branch})`);
+    const match = branch.match(trelloCardIdPattern);
+    if (match == null) {
+        return null;
+    }
+    return match[1];
+};
+function addAttachmentToCard(cardId, link) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log(`addAttachmentToCard(${cardId}, ${link})`);
+        let url = `https://api.trello.com/1/cards/${cardId}/attachments`;
+        return yield axios__WEBPACK_IMPORTED_MODULE_2___default().post(url, Object.assign(Object.assign({}, trelloApiAuth), { url: link }))
+            .then((response) => __awaiter(this, void 0, void 0, function* () {
+            if (response.status == 200) {
+                return yield addCommentToPR(cardId);
             }
-          }
-        })
-        .catch((error) => {
-          console.error(
-            url,
-            `Error ${error.response.status} ${error.response.statusText}`
-          );
-          return null;
+        }))
+            .catch((error) => {
+            console.error(url, `Error ${error.response.status} ${error.response.statusText}`);
+            return null;
         });
-    })
-    .catch((error) => {
-      console.error(
-        url,
-        `Error ${error.response.status} ${error.response.statusText}`
-      );
-      return null;
     });
 }
-
-async function addFailedCommentToPR() {
-  console.log(`addFailedCommentToPR()`);
-  const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_2__.getOctokit(githubToken);
-  try {
-    await octokit.issues.createComment({
-      ...context.repo,
-      issue_number: pull_request.number,
-      body: "Could not extract a Trello card shortcode from the PR branch name. Be sure to include `/tr-[shortcode]/` in your branch name.",
+function addCommentToPR(cardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log(`addCommentToPR(${cardId})`);
+        const boardUrl = `https://api.trello.com/1/cards/${cardId}/board`;
+        yield axios__WEBPACK_IMPORTED_MODULE_2___default().get(boardUrl, { params: trelloApiAuth })
+            .then((response) => __awaiter(this, void 0, void 0, function* () {
+            const boardData = response.data;
+            const cardUrl = `https://api.trello.com/1/cards/${cardId}`;
+            yield axios__WEBPACK_IMPORTED_MODULE_2___default().get(cardUrl, { params: trelloApiAuth })
+                .then((response) => __awaiter(this, void 0, void 0, function* () {
+                if (response.status == 200) {
+                    const octokit = (0,_actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit)(githubToken);
+                    const cardData = response.data;
+                    try {
+                        yield octokit.issues.createComment(Object.assign(Object.assign({}, _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo), { issue_number: pull_request.number, body: makePRCommentString(cardData, boardData) }));
+                        return true;
+                    }
+                    catch (error) {
+                        console.error("OCTOKIT ERROR", {
+                            owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
+                            repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
+                            issue_number: pull_request.number,
+                            body: makePRCommentString(cardData, boardData),
+                        });
+                        return null;
+                    }
+                }
+            }))
+                .catch((error) => {
+                console.error(cardUrl, `Error ${error.response.status} ${error.response.statusText}`);
+                return null;
+            });
+        }))
+            .catch((error) => {
+            console.error(boardUrl, `Error ${error.response.status} ${error.response.statusText}`);
+            return null;
+        });
     });
-    return true;
-  } catch (error) {
-    console.error("OCTOKIT ERROR", {
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      issue_number: pull_request.number,
-      body: "Could not extract a Trello card shortcode from the PR branch name. Be sure to include `/tr-[shortcode]/` in your branch name.",
-    });
-    return null;
-  }
 }
-
+function addFailedCommentToPR() {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log(`addFailedCommentToPR()`);
+        const octokit = (0,_actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit)(githubToken);
+        try {
+            yield octokit.issues.createComment(Object.assign(Object.assign({}, _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo), { issue_number: pull_request.number, body: "Could not extract a Trello card shortcode from the PR branch name. Be sure to include `/tr-[shortcode]/` in your branch name." }));
+            return true;
+        }
+        catch (error) {
+            console.error("OCTOKIT ERROR", {
+                owner: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.owner,
+                repo: _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.repo.repo,
+                issue_number: pull_request.number,
+                body: "Could not extract a Trello card shortcode from the PR branch name. Be sure to include `/tr-[shortcode]/` in your branch name.",
+            });
+            return null;
+        }
+    });
+}
 function makePRCommentString(cardData, boardData) {
-  const cardLink = `[${cardData.name}](${cardData.shortUrl})`;
-  const boardLink = `[${boardData.name}](${boardData.shortUrl})`;
-  const {
-    name: cardName,
-    url: cardFullUrl,
-    shortUrl: cardUrl,
-    id: cardId,
-    shortcode: cardShortcode,
-  } = cardData;
-  const {
-    name: boardName,
-    url: boardFullUrl,
-    shortUrl: boardUrl,
-    id: boardId,
-    shortcode: boardShortcode,
-  } = boardData;
-  return commentString
-    .replace("[CARD_LINK]", cardLink)
-    .replace("[BOARD_LINK]", boardLink)
-    .replace("[CARD_NAME]", cardName)
-    .replace("[CARD_FULL_URL]", cardFullUrl)
-    .replace("[CARD_URL]", cardUrl)
-    .replace("[CARD_ID]", cardId)
-    .replace("[CARD_SHORTCODE]", cardShortcode)
-    .replace("[BOARD_NAME]", boardName)
-    .replace("[BOARD_FULL_URL]", boardFullUrl)
-    .replace("[BOARD_URL]", boardUrl)
-    .replace("[BOARD_ID]", boardId)
-    .replace("[BOARD_SHORTCODE]", boardShortcode);
+    const cardLink = `[${cardData.name}](${cardData.shortUrl})`;
+    const boardLink = `[${boardData.name}](${boardData.shortUrl})`;
+    const { name: cardName, url: cardFullUrl, shortUrl: cardUrl, id: cardId, shortcode: cardShortcode, } = cardData;
+    const { name: boardName, url: boardFullUrl, shortUrl: boardUrl, id: boardId, shortcode: boardShortcode, } = boardData;
+    return commentString
+        .replace("[CARD_LINK]", cardLink)
+        .replace("[BOARD_LINK]", boardLink)
+        .replace("[CARD_NAME]", cardName)
+        .replace("[CARD_FULL_URL]", cardFullUrl)
+        .replace("[CARD_URL]", cardUrl)
+        .replace("[CARD_ID]", cardId)
+        .replace("[CARD_SHORTCODE]", cardShortcode)
+        .replace("[BOARD_NAME]", boardName)
+        .replace("[BOARD_FULL_URL]", boardFullUrl)
+        .replace("[BOARD_URL]", boardUrl)
+        .replace("[BOARD_ID]", boardId)
+        .replace("[BOARD_SHORTCODE]", boardShortcode);
 }
-
-async function handlePullRequest(data) {
-  console.log("handlePullRequest", data);
-  let url = data.html_url || data.url;
-  let branch = data.head.ref;
-  let shortcode = getCardShortcode(branch);
-  if (shortcode && shortcode.length > 0) {
-    await addAttachmentToCard(shortcode, url);
-  } else {
-    await addFailedCommentToPR();
-  }
+function handlePullRequest(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("handlePullRequest", data);
+        const url = data.html_url || data.url;
+        const branch = data.head.ref;
+        const shortcode = getCardShortcode(branch);
+        if (shortcode && shortcode.length > 0) {
+            yield addAttachmentToCard(shortcode, url);
+        }
+        else {
+            yield addFailedCommentToPR();
+        }
+    });
 }
-
-async function run() {
-  if (pull_request && pull_request.title) {
-    handlePullRequest(pull_request);
-  }
+function run() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (pull_request && pull_request.title) {
+            handlePullRequest(pull_request);
+        }
+    });
 }
-
 run();
 
 })();
