@@ -24,9 +24,7 @@ function getCardShortcode(branch) {
   console.log(`getCardShortcode(${branch})`);
   const match = branch.match(trelloCardIdPattern);
   if (match == null) {
-    throw new Error(
-      "PR branch name does not meet the guidelines: must include `tr-[Trello card shortcode]"
-    );
+    return null;
   }
   return match[1];
 }
@@ -102,6 +100,27 @@ async function addCommentToPR(cardId) {
     });
 }
 
+async function addFailedCommentToPR() {
+  console.log(`addFailedCommentToPR()`);
+  const octokit = github.getOctokit(githubToken);
+  try {
+    await octokit.issues.createComment({
+      ...context.repo,
+      issue_number: pull_request.number,
+      body: "Could not extract a Trello card shortcode from the PR branch name. Be sure to include `/tr-[shortcode]/` in your branch name.",
+    });
+    return true;
+  } catch (error) {
+    console.error("OCTOKIT ERROR", {
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: pull_request.number,
+      body: "Could not extract a Trello card shortcode from the PR branch name. Be sure to include `/tr-[shortcode]/` in your branch name.",
+    });
+    return null;
+  }
+}
+
 function makePRCommentString(cardData, boardData) {
   const cardLink = `[${cardData.name}](${cardData.shortUrl})`;
   const boardLink = `[${boardData.name}](${boardData.shortUrl})`;
@@ -141,6 +160,8 @@ async function handlePullRequest(data) {
   let shortcode = getCardShortcode(branch);
   if (shortcode && shortcode.length > 0) {
     await addAttachmentToCard(shortcode, url);
+  } else {
+    await addFailedCommentToPR();
   }
 }
 
