@@ -106,7 +106,7 @@ async function addFailedCommentToPR() {
     await octokit.issues.createComment({
       ...context.repo,
       issue_number: pull_request.number,
-      body: "Could not extract a Trello card shortcode from the PR branch name. Be sure to include `/tr-[shortcode]/` in your branch name.",
+      body: "Could not extract a Trello card shortcode from the PR branch name. Be sure to include `/tr-[shortcode]/` in your branch name.\n\nPlease consider manually adding this PR to any relevant Trello card(s) using the Github intergration.",
     });
     return true;
   } catch (error) {
