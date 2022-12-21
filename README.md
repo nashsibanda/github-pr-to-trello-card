@@ -27,7 +27,7 @@ jobs:
         with:
           trello-api-key: ${{ secrets.TRELLO_KEY }}
           trello-auth-token: ${{ secrets.TRELLO_TOKEN }}
-          trello-card-id-pattern: "/\/tr-([a-zA-Z0-9]+)\/.*/"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```          
 
 #### Local Build
