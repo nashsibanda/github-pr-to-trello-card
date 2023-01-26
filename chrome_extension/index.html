@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Trello Branch Namer</title>
+  </head>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    .monospace {
+      font-family: "Courier New", monospace;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .hide h2,
+    .hide button,
+    .hide div,
+    .hide p,
+    .hide .branch-output {
+      display: none;
+    }
+
+    #warning {
+      display: none;
+    }
+
+    .hide #warning {
+      display: inline;
+    }
+
+    .branch-output {
+      background-color: #ddd;
+      padding: 5px 14px;
+      font-family: monospace;
+      display: inline-block;
+      white-space: nowrap;
+      width: 100%;
+      overflow: auto;
+      box-sizing: border-box;
+      font-size: 14px;
+      margin-right: 20px;
+      line-height: 24px;
+    }
+
+    .branch-display {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .tooltip {
+      position: absolute;
+      background: black;
+      color: white;
+      white-space: nowrap;
+      right: 36px;
+      padding: 10px;
+      z-index: 3;
+      border-radius: 5px;
+      top: 3px;
+      display: none;
+    }
+
+    #shortcode-tooltip {
+      right: -10px;
+      top: -40px;
+    }
+
+    button:hover .tooltip {
+      display: block;
+    }
+
+    button {
+      cursor: pointer;
+    }
+  </style>
+  <body>
+    <div id="container" style="width: 450px; padding: 10px 20px">
+      <h2 style="display: flex; align-items: center">
+        <img src="mlp_circle.png" style="width: 35px; margin-right: 10px" />
+        MakeLeaps Trello-to-Git Branch Integration
+      </h2>
+      <p id="description">
+        This extension provides a handy branch name for a PR based on a Trello
+        ticket.
+      </p>
+      <div class="branch-display">
+        <span class="branch-output" id="branch-name"></span
+        ><button
+          id="copy-btn"
+          style="padding: 4px; line-height: 3px; position: relative"
+        >
+          <svg
+            width="24px"
+            height="24px"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            color="#000000"
+            style="width: 20px; height: 20px"
+          >
+            <path
+              d="M19.4 20H9.6a.6.6 0 01-.6-.6V9.6a.6.6 0 01.6-.6h9.8a.6.6 0 01.6.6v9.8a.6.6 0 01-.6.6z"
+              stroke="#000000"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+            <path
+              d="M15 9V4.6a.6.6 0 00-.6-.6H4.6a.6.6 0 00-.6.6v9.8a.6.6 0 00.6.6H9"
+              stroke="#000000"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+          <div class="tooltip" id="branch-name-tooltip">Copy branch name</div>
+        </button>
+      </div>
+      <div class="branch-display">
+        <span class="branch-output" id="branch-command"></span>
+        <button
+          id="copy-cmd-btn"
+          style="padding: 4px; line-height: 3px; position: relative"
+        >
+          <svg
+            width="24px"
+            height="24px"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            color="#000000"
+            style="width: 20px; height: 20px"
+          >
+            <path
+              d="M17 7a2 2 0 100-4 2 2 0 000 4zM7 7a2 2 0 100-4 2 2 0 000 4zM7 21a2 2 0 100-4 2 2 0 000 4zM7 7v10M17 7v1c0 2.5-2 3-2 3l-6 2s-2 .5-2 3v1"
+              stroke="#000000"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="width: 20px; height: 20px"
+            ></path>
+          </svg>
+          <div class="tooltip" id="branch-cmd-tooltip">
+            Copy git checkout command
+          </div>
+        </button>
+      </div>
+      <p>
+        Alternatively, you can use whatever branch name you want, so long as it
+        includes the string
+        <button id="copy-shortcode-btn" style="position: relative">
+          <span class="monospace" id="shortcode">/tr-[shortcode]/</span>
+          <div class="tooltip" id="shortcode-tooltip">Copy card shortcode</div>
+        </button>
+      </p>
+      <span id="warning"
+        >Use this extension when viewing a Trello card. It will have
+        'trello.com/c/' in the URL.</span
+      >
+      <div id="prefix-entry" style="margin-top: 10px;">
+        <label for="prefix" style="display: block; margin-bottom: 5px"
+          >Optional: add a prefix to your branch (e.g.
+          <span
+            class="monospace"
+            style="background-color: #ddd; padding: 0 10px"
+            >feat</span
+          >
+          or your username)</label
+        >
+        <input
+          type="text"
+          name="prefix"
+          id="prefix"
+          placeholder="ml"
+          maxlength="16"
+        />
+        <button id="done-btn">Save</button>
+      </div>
+    </div>
+  </body>
+  <script src="script.js"></script>
+</html>

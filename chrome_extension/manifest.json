@@ -1,0 +1,18 @@
+{
+  "name": "Makeleaps Trello-to-Github Branch Namer",
+  "version": "1.0.0",
+  "description": "Command to make a good branch name",
+  "manifest_version": 3,
+  "author": "Nash Sibanda",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Makeleaps Trello-to-Github Branch Namer"
+  },
+  "permissions": ["storage", "tabs"],
+  "icons": {
+    "16": "mlp_circle16.png",
+    "32": "mlp_circle32.png",
+    "48": "mlp_circle48.png",
+    "128": "mlp_circle.png"
+  }
+}

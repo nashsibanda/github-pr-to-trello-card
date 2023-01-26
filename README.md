@@ -1,6 +1,10 @@
 # GitHub-PR-To-Trello-Card
 ### GitHub Action to attach GitHub pull requests to a Trello card based on branch name
 
+Includes a helper extension for Chrome, to make creating branch names super easy.
+
+![image](action-demo-680.gif)
+
 #### Forked from
 [https://github.com/marketplace/actions/github-commit-to-trello-card](https://github.com/marketplace/actions/github-commit-to-trello-card)
 
